@@ -51,16 +51,30 @@ class Client:
                 packet_message = f"FILE {filename} GET START {start_num} END {end_num}"
                 res_packet = self.send_rq(packet_message, client_socket, (self.server_host, port))
 
-                
+                if "OK START" in res_packet:
+                    packet_data = res_packet[res_packet.find("DATA") + 5]
+
+                    f.write(packet_data)
+
+                    file_ct += len(packet_data)
+                else:
+                    pass
+
+            close_message = f"FILE {filename} CLOSE"
+            res_close = self.send_rq(client_socket, client_socket, (self.server_host, port))
+
+            if "CLOSE_OK" in res_close:
+                print("File downloading finished.")
+            else:
+                print("File downloading failed.")
 
 
-
-    def send_rq(self, dl_message, client_socket, server_addr):
+    def send_rq(self, message, client_socket, server_addr):
         for retrans in range(self.retransmit_time):
             try:
                 client_socket.settimeout(self.timeout / 1000)
 
-                client_socket.sendto(dl_message.encode('utf-8'), server_addr)
+                client_socket.sendto(message.encode('utf-8'), server_addr)
                 res = client_socket.recvfrom(1024)
 
                 return res.decode('utf-8')
