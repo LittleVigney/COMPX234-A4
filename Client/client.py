@@ -88,8 +88,11 @@ class Client:
                 continue
 
 if __name__ == "__main__":
-    port = int(input("Input port for client: "))
-    file_list = input("Input the name of file list: ")
+    # port = int(input("Input port for client: "))
+    # file_list = input("Input the name of file list: ")
+
+    port = 51234
+    file_list = "filelist1.txt"
 
     client = Client(port, file_list)
     client.start_client()

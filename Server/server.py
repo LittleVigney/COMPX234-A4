@@ -17,8 +17,8 @@ class Server:
                 rq, client_addr = server_socket.recvfrom(1024)
                 rq = rq.decode().strip()
 
-                if rq[ : 8] == "DOWNLOAD":
-                    filename = rq[9 : ]
+                if rq[0] == "DOWNLOAD":
+                    filename = rq[1]
 
                     if filename is not None:
                         threading.Thread(target=self.handle_client, args=(filename, client_addr)).start()
@@ -26,11 +26,13 @@ class Server:
     def handle_client(self, filename, client_addr):
         file_path = os.path.join(filename)
 
-        if not file_path:
+        if not os.path.exists(file_path):
             # send error
             with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as error_socket:
                 error_message = f"ERR {filename} NOT_FOUND"
                 error_socket.sendto(error_message.encode(), client_addr)
+
+                return
 
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as client_socket:
             client_port = random.randint(50000, 51000)
@@ -43,7 +45,7 @@ class Server:
 
             with open(file_path, 'r') as f:
                 while True:
-                    rq = client_socket.recv(1024)
+                    rq, addr = client_socket.recvfrom(1024)
                     rq = rq.decode().strip()
 
                     rq_lst = rq.split()
@@ -51,7 +53,7 @@ class Server:
                     if rq_lst[2] == "CLOSE":
                         close_message = f"FILE {filename} CLOSE_OK"
 
-                        self.send_res(client_socket, close_message, client_addr)
+                        self.send_res(client_socket, close_message, addr)
 
                     elif rq_lst[2] == "GET" and rq_lst[3] == "START":
                         start_num = int(rq_lst[rq_lst.index("START") + 1])
@@ -62,8 +64,7 @@ class Server:
                             res_packet = f.read(end_num - start_num)
 
                             packet_message = f"FILE {filename} OK START {start_num} END {end_num} DATA {res_packet}"
-                            self.send_res(client_socket, packet_message, client_addr)
-
+                            self.send_res(client_socket, packet_message, addr)
 
     def send_res(self, socket, message, addr):
         socket.sendto(message.encode(), addr)
