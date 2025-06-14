@@ -55,7 +55,12 @@ class Server:
                         start_num = int(rq_lst[rq_lst.index("START") + 1])
                         end_num = int(rq_lst[rq_lst.index("END") + 1])
 
-                        
+                        if start_num <= file_size - 1 and end_num <= file_size - 1:
+                            f.seek(start_num)
+                            res_packet = f.read(end_num - start_num)
+
+                            packet_message = f"FILE {filename} OK START {start_num} END {end_num} DATA {res_packet}"
+                            self.send_res(client_socket, packet_message, client_addr)
 
 
     def send_res(self, socket, message, addr):
