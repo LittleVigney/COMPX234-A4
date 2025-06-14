@@ -2,6 +2,7 @@ import socket
 import threading
 import os
 import random
+import base64
 
 class Server:
     def __init__(self, _port):
@@ -20,9 +21,8 @@ class Server:
                 rq = rq.split()
 
                 if rq[0] == "DOWNLOAD":
-                    filename = rq[1]
-
-                    if filename is not None:
+                    if len(rq) == 2:
+                        filename = rq[1]
                         threading.Thread(target=self.handle_client, args=(filename, client_addr)).start()
 
     def handle_client(self, filename, client_addr):
@@ -45,7 +45,7 @@ class Server:
 
             self.send_res(client_socket, res_message, client_addr)
 
-            with open(file_path, 'r') as f:
+            with open(file_path, 'rb') as f:
                 while True:
                     rq, addr = client_socket.recvfrom(1024)
                     rq = rq.decode().strip()
@@ -57,14 +57,15 @@ class Server:
 
                         self.send_res(client_socket, close_message, addr)
 
-                    elif rq_lst[2] == "GET" and rq_lst[3] == "START":
+                    elif rq_lst[2] == "GET":
                         start_num = int(rq_lst[rq_lst.index("START") + 1])
                         end_num = int(rq_lst[rq_lst.index("END") + 1])
 
                         if start_num <= file_size - 1 and end_num <= file_size - 1:
                             f.seek(start_num)
-                            res_packet = f.read(end_num - start_num)
+                            res_packet = f.read(end_num - start_num + 1)
 
+                            packet_data = base64.b64encode(res_packet).decode()
                             packet_message = f"FILE {filename} OK START {start_num} END {end_num} DATA {res_packet}"
                             self.send_res(client_socket, packet_message, addr)
 
