@@ -74,16 +74,15 @@ class Client:
             else:
                 print("File downloading failed.")
 
-
     def send_rq(self, message, client_socket, server_addr):
         for retrans in range(self.retransmit_time):
             try:
                 client_socket.settimeout(self.timeout / 1000)
 
-                client_socket.sendto(message.encode('utf-8'), server_addr)
-                res = client_socket.recvfrom(1024)
+                client_socket.sendto(message.encode(), server_addr)
+                res, _ = client_socket.recvfrom(1024)
 
-                return res.decode('utf-8')
+                return res.decode()
             except socket.timeout:
                 continue
 
