@@ -25,6 +25,7 @@ class Client:
                 self.download_file(every_file, client_socket, (self.server_host, self.server_port))
     
     def get_filelist(self):
+        # load file name list from txt file
         with open(self.filelistname, 'r') as f:
             for line in f:
                 if line.strip():
@@ -47,9 +48,11 @@ class Client:
         port = int(res_part[res_part.index("PORT") + 1])
 
         downloaded_file = os.path.join(self.downloaded_files, filename)
+        # create file and write into it
         with open(downloaded_file, 'wb') as f:
             file_ct = 0
 
+            # use data block to download file
             while file_ct <= file_size - 1:
                 start_num = file_ct
                 end_num = start_num + 999
@@ -60,16 +63,20 @@ class Client:
                 packet_message = f"FILE {filename} GET START {start_num} END {end_num}"
                 res_packet = self.send_rq(packet_message, client_socket, (self.server_host, port))
 
+                # if download ok
                 if "OK START" in res_packet:
                     unencode_data = res_packet[res_packet.find("DATA") + 5 : ]
                     packet_data = base64.b64decode(unencode_data)
 
+                    # find the right position and write it
                     f.seek(start_num)
 
                     f.write(packet_data)
 
+                    # update length client has write
                     file_ct += len(packet_data)
 
+            # send close request
             close_message = f"FILE {filename} CLOSE"
             res_close = self.send_rq(close_message, client_socket, (self.server_host, port))
 
@@ -79,6 +86,7 @@ class Client:
                 print("File downloading failed.")
 
     def send_rq(self, message, client_socket, server_addr):
+        # client has a max retransmit times
         for retrans in range(self.retransmit_time):
             try:
                 client_socket.settimeout(self.timeout)
