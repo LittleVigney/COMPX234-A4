@@ -10,6 +10,7 @@ class Client:
         self.filelist = []
         self.timeout = 1
         self.retransmit_time = 5
+        self.downloaded_files = "downloaded_files/"
 
     def start_client(self):
         # get names of files from txt file
@@ -33,8 +34,6 @@ class Client:
 
         # get reponse from server
         res = self.send_rq(dl_message, client_socket, server_addr)
-
-        print(res) 
 
         # if not found
         if res[0 : 4] == "ERR":

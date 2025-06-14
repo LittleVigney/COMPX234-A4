@@ -6,6 +6,7 @@ import random
 class Server:
     def __init__(self, _port):
         self.port = _port
+        self.files = "server_file/"
 
     def start_server(self):
         print("Server running...")
