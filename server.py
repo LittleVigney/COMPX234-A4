@@ -37,7 +37,26 @@ class Server:
             client_socket.bind(("localhost", client_port))
             res_message = f"OK {filename} SIZE {file_size} PORT {client_port}"
 
-            self.send_res(client_socket, )
+            self.send_res(client_socket, res_message, client_addr)
+
+            with open(file_path, 'r') as f:
+                while True:
+                    rq = client_socket.recv(1024)
+                    rq = rq.decode().strip()
+
+                    rq_lst = rq.split()
+
+                    if rq_lst[2] == "CLOSE":
+                        close_message = f"FILE {filename} CLOSE_OK"
+
+                        self.send_res(client_socket, close_message, client_addr)
+
+                    elif rq_lst[2] == "GET" and rq_lst[3] == "START":
+                        start_num = int(rq_lst[rq_lst.index("START") + 1])
+                        end_num = int(rq_lst[rq_lst.index("END") + 1])
+
+                        
+
 
     def send_res(self, socket, message, addr):
         socket.sendto(message.encode(), addr)
