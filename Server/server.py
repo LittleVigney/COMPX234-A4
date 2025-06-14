@@ -66,7 +66,7 @@ class Server:
                             res_packet = f.read(end_num - start_num + 1)
 
                             packet_data = base64.b64encode(res_packet).decode()
-                            packet_message = f"FILE {filename} OK START {start_num} END {end_num} DATA {res_packet}"
+                            packet_message = f"FILE {filename} OK START {start_num} END {end_num} DATA {packet_data}"
                             self.send_res(client_socket, packet_message, addr)
 
     def send_res(self, socket, message, addr):

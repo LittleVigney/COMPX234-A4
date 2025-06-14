@@ -61,8 +61,8 @@ class Client:
                 res_packet = self.send_rq(packet_message, client_socket, (self.server_host, port))
 
                 if "OK START" in res_packet:
-                    packet_data = res_packet[res_packet.find("DATA") + 5 : ]
-                    packet_data = base64.b64decode(packet_data)
+                    unencode_data = res_packet[res_packet.find("DATA") + 5 : ]
+                    packet_data = base64.b64decode(unencode_data)
 
                     f.seek(start_num)
 
