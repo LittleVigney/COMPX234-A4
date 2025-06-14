@@ -43,9 +43,9 @@ class Client:
         # if file found
         res_part = res.split()
         file_size = res_part[res_part.index("SIZE") + 1]
-        port = res_part[res_part("PORT") + 1]
+        port = int(res_part[res_part.index("PORT") + 1])
 
-        downloaded_file = os.path.join(filename)
+        downloaded_file = os.path.join(self.downloaded_files, filename)
         with open(downloaded_file, 'w') as f:
             file_ct = 0
 

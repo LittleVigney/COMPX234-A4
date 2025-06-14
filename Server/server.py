@@ -17,6 +17,7 @@ class Server:
             while True:
                 rq, client_addr = server_socket.recvfrom(1024)
                 rq = rq.decode().strip()
+                rq = rq.split()
 
                 if rq[0] == "DOWNLOAD":
                     filename = rq[1]
@@ -25,7 +26,7 @@ class Server:
                         threading.Thread(target=self.handle_client, args=(filename, client_addr)).start()
 
     def handle_client(self, filename, client_addr):
-        file_path = os.path.join(filename)
+        file_path = os.path.join(self.files, filename)
 
         if not os.path.exists(file_path):
             # send error
