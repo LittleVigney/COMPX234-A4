@@ -18,7 +18,7 @@ class Server:
                 rq = rq.decode().strip()
 
                 if rq[ : 8] == "DOWNLOAD":
-                    filename = rq[8 : ]
+                    filename = rq[9 : ]
 
                     if filename is not None:
                         threading.Thread(target=self.handle_client, args=(filename, client_addr)).start()

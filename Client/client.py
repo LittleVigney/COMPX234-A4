@@ -1,5 +1,6 @@
 import socket
 import time
+import os
 
 class Client:
     def __init__(self, _port, _filelist):
@@ -12,18 +13,19 @@ class Client:
 
     def start_client(self):
         # get names of files from txt file
-        self.get_filelist(self)
+        self.get_filelist()
 
         # download every file
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as client_socket:
             # send request for every file name
             for every_file in self.filelist:
+                print(every_file)
                 self.download_file(every_file, client_socket, (self.server_host, self.server_port))
     
     def get_filelist(self):
         with open(self.filelistname, 'r') as f:
             for line in f:
-                if not line :
+                if line :
                     self.filelist.append(line)
 
     def download_file(self, filename, client_socket, server_addr):
@@ -32,16 +34,19 @@ class Client:
         # get reponse from server
         res = self.send_rq(dl_message, client_socket, server_addr)
 
+        print(res) 
+
         # if not found
         if res[0 : 4] == "ERR":
-            pass
+            print("File downloading failed.")
+            return
 
         # if file found
         res_part = res.split()
         file_size = res_part[res_part.index("SIZE") + 1]
         port = res_part[res_part("PORT") + 1]
 
-        downloaded_file = ""
+        downloaded_file = os.path.join(filename)
         with open(downloaded_file, 'w') as f:
             file_ct = 0
 
@@ -53,7 +58,7 @@ class Client:
                 res_packet = self.send_rq(packet_message, client_socket, (self.server_host, port))
 
                 if "OK START" in res_packet:
-                    packet_data = res_packet[res_packet.find("DATA") + 5]
+                    packet_data = res_packet[res_packet.find("DATA")] + 5
 
                     f.write(packet_data)
 
@@ -83,7 +88,7 @@ class Client:
                 continue
 
 if __name__ == "__main__":
-    port = input("Input port for client: ")
+    port = int(input("Input port for client: "))
     file_list = input("Input the name of file list: ")
 
     client = Client(port, file_list)
