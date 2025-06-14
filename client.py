@@ -17,7 +17,8 @@ class Client:
         # download every file
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as client_socket:
             # send request for every file name
-            pass
+            for every_file in self.filelist:
+                self.download_file(every_file, client_socket, (self.server_host, self.server_port))
     
     def get_filelist(self):
         with open(self.filelistname, 'r') as f:
@@ -80,5 +81,4 @@ class Client:
                 return res.decode('utf-8')
             except socket.timeout:
                 continue
-
         
