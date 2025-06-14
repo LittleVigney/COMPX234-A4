@@ -1,5 +1,7 @@
 import socket
 import threading
+import os
+import random
 
 class Server:
     def __init__(self, _port):
@@ -20,4 +22,22 @@ class Server:
                         threading.Thread(target=self.handle_client, args=(filename, client_addr)).start()
 
     def handle_client(self, filename, client_addr):
-        
+        file_path = os.path.join(filename)
+
+        if not file_path:
+            # send error
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as error_socket:
+                error_message = f"ERR {filename} NOT_FOUND"
+                error_socket.sendto(error_message.encode(), client_addr)
+
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as client_socket:
+            client_port = random.randint(50000, 51000)
+            file_size = os.path.getsize(file_path)
+
+            client_socket.bind(("localhost", client_port))
+            res_message = f"OK {filename} SIZE {file_size} PORT {client_port}"
+
+            self.send_res(client_socket, )
+
+    def send_res(self, socket, message, addr):
+        socket.sendto(message.encode(), addr)
