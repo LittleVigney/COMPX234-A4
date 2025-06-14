@@ -8,6 +8,8 @@ class Server:
         self.port = _port
 
     def start_server(self):
+        print("Server running...")
+
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as server_socket:
             server_socket.bind(("localhost", self.port))
 
@@ -65,3 +67,8 @@ class Server:
 
     def send_res(self, socket, message, addr):
         socket.sendto(message.encode(), addr)
+
+
+if __name__ == "__main__":
+    server = Server(51234)
+    server.start_server()

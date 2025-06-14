@@ -2,8 +2,8 @@ import socket
 import time
 
 class Client:
-    def __init__(self, _host, _port, _filelist):
-        self.server_host = _host
+    def __init__(self, _port, _filelist):
+        self.server_host = "localhost"
         self.server_port = _port
         self.filelistname = _filelist
         self.filelist = []
@@ -81,4 +81,11 @@ class Client:
                 return res.decode('utf-8')
             except socket.timeout:
                 continue
-        
+
+if __name__ == "__main__":
+    port = input("Input port for client: ")
+    file_list = input("Input the name of file list: ")
+
+    client = Client(port, file_list)
+    client.start_client()
+    
